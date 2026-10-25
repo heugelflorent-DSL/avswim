@@ -214,6 +214,15 @@ export default async (req) => {
         const counts = Object.fromEntries(await Promise.all(users.map(async u => [u.id, (await readIndex(u.id)).length])));
         return json({ users: users.map(u => ({ ...publicUser(u), analyses: counts[u.id] })).sort((a, b) => (a.status === "pending" ? -1 : 0) - (b.status === "pending" ? -1 : 0) || a.name.localeCompare(b.name)) });
       }
+      // export complet pour la migration vers Cloudflare
+      if (path === "/admin/export" && method === "GET") {
+        const items = [];
+        for (const prefix of ["users/", "emails/", "analyses/", "index/"]) {
+          const { blobs } = await store().list({ prefix });
+          for (const b of blobs) items.push({ key: b.key, value: await getJSON(b.key) });
+        }
+        return json({ exportedAt: new Date().toISOString(), count: items.length, items }, 200, { "content-disposition": "attachment; filename=espadon-export.json" });
+      }
       const um = path.match(/^\/admin\/users\/([0-9a-f-]{36})$/);
       if (um && method === "POST") {
         const u = await getJSON(`users/${um[1]}`); if (!u) return err(404, "Compte introuvable");
