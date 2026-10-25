@@ -1,7 +1,7 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Espadon Web</title>
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Espadon">
-<link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" type="image/png" href="icon-180.png"><link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" type="image/png" sizes="32x32" href="icon-32.png"><link rel="icon" type="image/png" sizes="180x180" href="icon-180.png"><link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -116,6 +116,9 @@ svg text{fill:var(--muted);font-family:var(--mono);font-size:11px}
   .keys div.key{display:none}
   .kbdnote{display:none}
 }
+.sig{display:flex;align-items:center;justify-content:center;gap:14px;margin:28px auto 8px;padding:16px;color:var(--muted);font-size:13px;text-align:left;border-top:1px solid var(--line)}
+.sig img{width:72px;height:72px;flex:none}
+.sig b{color:var(--ink)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -208,6 +211,7 @@ svg text{fill:var(--muted);font-family:var(--mono);font-size:11px}
   <p class="note">Fréquence (cycles/min), tempo (s/cycle) et amplitude (m/cycle) sont calculés sur chaque section qui contient au moins 2 coups de bras ; les coups de bras sont comptés par longueur. Le graphique montre la fréquence cycle par cycle (lissée sur 3 cycles) et l'amplitude par section. L'export Excel garde les valeurs par 25 m du format Espadon PC. Coulée de départ : de l'entrée dans l'eau à la fin de coulée ; tps départ : du signal à la fin de coulée. Virage : approche (dernier coup de bras → mur) + coulée (mur → fin de coulée) = tps total ; tps au 15 m : du mur au repère 15 m après. Les distances sont estimées par interpolation entre les repères de section.</p>
   <textarea id="out" hidden readonly aria-label="Export"></textarea>
 </section>
+<footer class="sig"><img src="logo-matflo.png" alt="Logo Mat-et-Flo" width="72" height="72"><div><b>Espadon Web</b> · réalisé par <b>Mat-et-Flo</b><br><span>Collectif alsacien pour la natation de demain</span></div></footer>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -654,7 +658,12 @@ async function openAdmin(tmp){openDlg("Administration des comptes","<p class='no
     `<div class="scroll"><table><thead><tr><th>Nom</th><th>E-mail</th><th>Rôle</th><th>Statut</th><th>Analyses</th><th>Dernière connexion</th><th></th></tr></thead><tbody>`+
     users.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${u.role=="superadmin"?"super admin":"entraîneur"}</td><td><span class="pill ${u.status}">${lab[u.status]}</span></td><td class="mono">${u.analyses}</td><td class="mono">${u.lastLogin?esc(new Date(u.lastLogin).toLocaleDateString("fr-FR")):"—"}</td>
       <td>${u.id==user.id?"":(u.status!="active"?`<button class="primary" data-u="${u.id}" data-s="active">${u.status=="pending"?"Valider":"Réactiver"}</button> `:`<button data-u="${u.id}" data-s="disabled">Désactiver</button> `)+`<button data-u="${u.id}" data-reset="1" data-n="${esc(u.name)}">Réinit. mot de passe</button>`}</td></tr>`).join("")+`</tbody></table></div>
-    <p class="note">Un compte désactivé est déconnecté immédiatement ; ses analyses sont conservées et restent visibles pour toi.</p>`;
+    <p class="note">Un compte désactivé est déconnecté immédiatement ; ses analyses sont conservées et restent visibles pour toi.</p>
+    <h2>Sauvegarde / changement d'hébergeur</h2><div class="row"><a class="key" href="/api/admin/export" download="espadon-export.json">Exporter toutes les données</a><label for="impAll" class="key" style="cursor:pointer">Importer une sauvegarde</label><input id="impAll" type="file" accept=".json" hidden><span class="note" id="impAllMsg"></span></div>`;
+  $("impAll").onchange=async e=>{const f=e.target.files[0];if(!f)return;const msg=$("impAllMsg");try{const items=JSON.parse(await f.text()).items||[];let i=0,n=0;
+    while(i<items.length){const batch=[];let size=0;while(i<items.length&&(size+JSON.stringify(items[i]).length<250000||!batch.length)){size+=JSON.stringify(items[i]).length;batch.push(items[i++])}
+      msg.textContent=`Import ${i} / ${items.length}…`;n+=(await api("POST","/admin/import",{items:batch})).imported}
+    msg.textContent=`${n} éléments importés.`;setTimeout(()=>openAdmin(),1200)}catch(x){msg.textContent="Échec : "+x.message}};
   $("dlgBody").onclick=async e=>{const b=e.target;if(!b.dataset.u)return;try{
     if(b.dataset.reset){if(!b.dataset.confirm){b.dataset.confirm=1;b.textContent="Confirmer ?";return}const r=await api("POST","/admin/users/"+b.dataset.u,{resetPassword:true});openAdmin({name:b.dataset.n,pw:r.tempPassword})}
     else{await api("POST","/admin/users/"+b.dataset.u,{status:b.dataset.s});openAdmin()}}catch(x){alertMsg(x.message)}}}
