@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Espadon Web</title>
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Espadon">
+<title>AVswim</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="AVswim">
 <link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" type="image/png" sizes="32x32" href="icon-32.png"><link rel="icon" type="image/png" sizes="180x180" href="icon-180.png"><link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -125,7 +125,7 @@ svg text{fill:var(--muted);font-family:var(--mono);font-size:11px}
 <div class="wrap">
 <div class="lockbar" id="lockbar" hidden><span><b>Mode découverte.</b> Connecte-toi pour charger une vidéo, pointer et enregistrer une analyse. L'exemple ci-dessous montre ce que produit l'outil.</span><button class="primary" id="lockLogin">Se connecter</button></div>
 <header class="top">
-  <div><h1>Espadon <span>Web</span></h1><p class="sub">Analyse vidéo de course · pointage au clavier, image par image</p></div>
+  <div><h1 style="text-transform:none">AV<span>swim</span></h1><p class="sub">Analyse vidéo de course · pointage au clavier, image par image</p></div>
   <div class="grow"></div>
   <div class="row">
     <span class="badge" id="sampleBadge">Exemple chargé</span>
@@ -211,7 +211,7 @@ svg text{fill:var(--muted);font-family:var(--mono);font-size:11px}
   <p class="note">Fréquence (cycles/min), tempo (s/cycle) et amplitude (m/cycle) sont calculés sur chaque section qui contient au moins 2 coups de bras ; les coups de bras sont comptés par longueur. Le graphique montre la fréquence cycle par cycle (lissée sur 3 cycles) et l'amplitude par section. L'export Excel garde les valeurs par 25 m du format Espadon PC. Coulée de départ : de l'entrée dans l'eau à la fin de coulée ; tps départ : du signal à la fin de coulée. Virage : approche (dernier coup de bras → mur) + coulée (mur → fin de coulée) = tps total ; tps au 15 m : du mur au repère 15 m après. Les distances sont estimées par interpolation entre les repères de section.</p>
   <textarea id="out" hidden readonly aria-label="Export"></textarea>
 </section>
-<footer class="sig"><img src="logo-matflo.png" alt="Logo Mat-et-Flo" width="72" height="72"><div><b>Espadon Web</b> · réalisé par <b>Mat-et-Flo</b><br><span>Collectif alsacien pour la natation de demain</span></div></footer>
+<footer class="sig"><img src="logo-matflo.png" alt="Logo Mat-et-Flo" width="72" height="72"><div><b>AVswim</b> · analyse vidéo de course · réalisé par <b>Mat-et-Flo</b><br><span>Collectif alsacien pour la natation de demain</span></div></footer>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -437,7 +437,7 @@ $("f_off").addEventListener("input",render);$("f_style").addEventListener("chang
 window.addEventListener("resize",()=>drawChart());
 
 // save / load
-const LS="espadon-web-analyses";
+const LS="avswim-analyses";
 const getSaved=()=>{try{return JSON.parse(localStorage.getItem(LS))||[]}catch{return[]}};
 const setSaved=a=>{try{localStorage.setItem(LS,JSON.stringify(a));return true}catch{return false}};
 // vidéo utilisée pour l'analyse : nom, taille, durée (contrôle quand on rouvre une analyse)
@@ -532,8 +532,8 @@ function buildPdf(){
   // bandeau
   doc.setFillColor(...INK);doc.rect(0,0,W,30,"F");
   [RED,[255,255,255],BLUE,[255,255,255]].forEach((c,i)=>{doc.setFillColor(...c);for(let x=i*6;x<W;x+=24)doc.rect(x,30,6,1.6,"F")});
-  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(22);doc.text("ESPADON",14,15);
-  doc.setTextColor(...RED);doc.text("WEB",14+doc.getTextWidth("ESPADON "),15);
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(22);doc.text("AV",14,15);
+  doc.setTextColor(...RED);doc.text("swim",14+doc.getTextWidth("AV"),15);
   doc.setTextColor(200,220,229);doc.setFont("helvetica","normal");doc.setFontSize(9);doc.text("Rapport d'analyse de course",14,22);
   doc.setFontSize(9);doc.text(new Date().toLocaleDateString("fr-FR"),W-14,22,{align:"right"});
   // identité
@@ -563,7 +563,7 @@ function buildPdf(){
     doc.autoTable({startY:doc.lastAutoTable.finalY+4,head:[tt.trHead],body:clean(tt.tr),theme:"plain",headStyles:head,styles:st,columnStyles:{0:{halign:"left"}},margin:{left:14,right:14},didParseCell:bold})}
   // pied
   const n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(7.5);doc.setTextColor(...MUT);doc.setFont("helvetica","normal");
-    doc.text("Espadon Web - "+(m.nageur||"")+" - "+m.distance+" m "+m.nage,14,290);doc.text(`${i} / ${n}`,W-14,290,{align:"right"})}
+    doc.text("AVswim - "+(m.nageur||"")+" - "+m.distance+" m "+m.nage,14,290);doc.text(`${i} / ${n}`,W-14,290,{align:"right"})}
   return doc;
 }
 $("btnPdf").onclick=()=>{const m=meta();const name=`${(m.nageur||"analyse").replace(/\s+/g,"_")}_${m.distance}${m.nage.replace(/\s+/g,"")}_${m.tour}.pdf`;
@@ -582,7 +582,7 @@ function loadSample(){
 // ================= comptes, historique, admin (serveur Netlify) =================
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let user=null, serverOK=false, currentId=null, serverList=[];
-async function api(method,path,body){const r=await fetch("/api"+path,{method,credentials:"same-origin",headers:{"x-espadon":"1",...(body?{"content-type":"application/json"}:{})},body:body?JSON.stringify(body):undefined});
+async function api(method,path,body){const r=await fetch("/api"+path,{method,credentials:"same-origin",headers:{"x-avswim":"1",...(body?{"content-type":"application/json"}:{})},body:body?JSON.stringify(body):undefined});
   let j={};try{j=await r.json()}catch{}if(!r.ok)throw Object.assign(new Error(j.error||("Erreur "+r.status)),{status:r.status});return j}
 const dlg=$("dlg");const openDlg=(t,html)=>{$("dlgTitle").textContent=t;$("dlgBody").innerHTML=html;if(!dlg.open)dlg.showModal()};
 $("dlgClose").onclick=()=>dlg.close();
@@ -659,7 +659,7 @@ async function openAdmin(tmp){openDlg("Administration des comptes","<p class='no
     users.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${u.role=="superadmin"?"super admin":"entraîneur"}</td><td><span class="pill ${u.status}">${lab[u.status]}</span></td><td class="mono">${u.analyses}</td><td class="mono">${u.lastLogin?esc(new Date(u.lastLogin).toLocaleDateString("fr-FR")):"—"}</td>
       <td>${u.id==user.id?"":(u.status!="active"?`<button class="primary" data-u="${u.id}" data-s="active">${u.status=="pending"?"Valider":"Réactiver"}</button> `:`<button data-u="${u.id}" data-s="disabled">Désactiver</button> `)+`<button data-u="${u.id}" data-reset="1" data-n="${esc(u.name)}">Réinit. mot de passe</button>`}</td></tr>`).join("")+`</tbody></table></div>
     <p class="note">Un compte désactivé est déconnecté immédiatement ; ses analyses sont conservées et restent visibles pour toi.</p>
-    <h2>Sauvegarde / changement d'hébergeur</h2><div class="row"><a class="key" href="/api/admin/export" download="espadon-export.json">Exporter toutes les données</a><label for="impAll" class="key" style="cursor:pointer">Importer une sauvegarde</label><input id="impAll" type="file" accept=".json" hidden><span class="note" id="impAllMsg"></span></div>`;
+    <h2>Sauvegarde / changement d'hébergeur</h2><div class="row"><a class="key" href="/api/admin/export" download="avswim-export.json">Exporter toutes les données</a><label for="impAll" class="key" style="cursor:pointer">Importer une sauvegarde</label><input id="impAll" type="file" accept=".json" hidden><span class="note" id="impAllMsg"></span></div>`;
   $("impAll").onchange=async e=>{const f=e.target.files[0];if(!f)return;const msg=$("impAllMsg");try{const items=JSON.parse(await f.text()).items||[];let i=0,n=0;
     while(i<items.length){const batch=[];let size=0;while(i<items.length&&(size+JSON.stringify(items[i]).length<250000||!batch.length)){size+=JSON.stringify(items[i]).length;batch.push(items[i++])}
       msg.textContent=`Import ${i} / ${items.length}…`;n+=(await api("POST","/admin/import",{items:batch})).imported}
@@ -711,7 +711,7 @@ const fileBase=m=>`${(m.nageur||"analyse").replace(/\s+/g,"_")}_${m.distance}_${
 // onglet lisible « Fiche » (comme le PDF), placé avant l'onglet au format Espadon PC
 function ficheSheet(){const r=compute(),m=meta(),mt=mainTable(r),tt=turnTables(r),A=[];
   const num=v=>{const t=String(v).replace("—","").trim();if(!t)return"";if(/^\d+:\d/.test(t))return t;const n=+t.replace(",",".").replace(/ m$/,"");return isFinite(n)?n:t};
-  A.push(["Fiche d'analyse - Espadon Web"],[],["Nageur",m.nageur,"","Compétition",m.competition],["Épreuve",`${m.distance} m ${m.nage} (bassin ${m.bassin} m)`,"","Date",m.date],["Tour",m.tour,"","Couloir",m.couloir],
+  A.push(["Fiche d'analyse - AVswim"],[],["Nageur",m.nageur,"","Compétition",m.competition],["Épreuve",`${m.distance} m ${m.nage} (bassin ${m.bassin} m)`,"","Date",m.date],["Tour",m.tour,"","Couloir",m.couloir],
     ["Temps",r.off!=null?fmtT(r.off):fmtT(r.final),"","Rang",m.rang||""],[]);
   A.push(mt.head);mt.rows.forEach(x=>A.push([x[0],...x.slice(1).map(num)]));A.push([]);
   if(tt.dep.length){A.push(["Départ",...tt.depHead.slice(1)]);tt.dep.forEach(x=>A.push([x[0],...x.slice(1).map(num)]));A.push([]);
@@ -806,7 +806,7 @@ function buildReport(list){const {jsPDF}=window.jspdf,n=list.length,land=n>6,doc
   const {R,bestIdx}=reportModel(list);
   doc.setFillColor(...INK);doc.rect(0,0,W,22,"F");doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text(m0.nageur||"Nageur",10,10);
   doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(200,220,229);doc.text(`${m0.distance} m ${m0.nage}  |  Bassin ${m0.bassin} m  |  Rapport comparatif (${n} course${n>1?"s":""})`,10,17);
-  doc.text("Espadon Web - "+new Date().toLocaleDateString("fr-FR"),W-10,17,{align:"right"});
+  doc.text("AVswim - "+new Date().toLocaleDateString("fr-FR"),W-10,17,{align:"right"});
   const lw=34,cw=(W-20-lw)/n;
   const head=[[{content:"",styles:{halign:"left"}},...list.map((x,i)=>({content:`${x.meta.competition||""}\n${x.meta.tour||""}${x.meta.date?" - "+new Date(x.meta.date).toLocaleDateString("fr-FR"):""}`,colSpan:2,styles:{halign:"center",fillColor:i==bestIdx?RED:INK}}))]];
   const body=[],meta2=[];
