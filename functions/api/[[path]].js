@@ -1,5 +1,5 @@
-// Espadon Web — API comptes + historique des analyses
-// Version Cloudflare Pages Functions. Stockage : KV (liaison "ESPADON"). Aucune vidéo n'est stockée.
+// AVswim — API comptes + historique des analyses
+// Version Cloudflare Pages Functions. Stockage : KV (liaison "AVSWIM"). Aucune vidéo n'est stockée.
 // Variables : ADMIN_EMAIL, SESSION_SECRET. Production et préversions utilisent des espaces KV différents (réglage Cloudflare).
 // Indicateur de compatibilité requis : nodejs_compat (pour lire les anciens mots de passe scrypt importés de Netlify).
 import { scryptSync, randomBytes, timingSafeEqual, createHmac, randomUUID, pbkdf2Sync } from "node:crypto";
@@ -12,8 +12,8 @@ const MAX_BODY = 300_000;          // 300 Ko max par requête
 const MAX_FAILS = 5, LOCK_MIN = 10; // anti-force brute
 
 // ---------- stockage ----------
-// Production : store "espadon". Prévisualisations / branches de test : store "espadon-test" (données séparées).
-const kv = () => { if (!ENV.ESPADON) throw new Error("Liaison KV ESPADON manquante"); return ENV.ESPADON; };
+// Production : KV "avswim". Préversions : KV "avswim-test" (données séparées).
+const kv = () => { const k = ENV.AVSWIM || ENV.ESPADON; if (!k) throw new Error("Liaison KV AVSWIM manquante"); return k; };
 const getJSON = async k => (await kv().get(k, { type: "json" })) ?? null;
 const setJSON = (k, v) => kv().put(k, JSON.stringify(v));
 const del = k => kv().delete(k);
@@ -109,7 +109,7 @@ export async function onRequest(context) {
     // Protection CSRF : les requêtes qui modifient doivent venir de l'appli (en-tête + JSON)
     let body = null;
     if (method !== "GET") {
-      if (req.headers.get("x-espadon") !== "1") return err(403, "Requête refusée");
+      if (req.headers.get("x-avswim") !== "1") return err(403, "Requête refusée");
       const txt = await req.text();
       if (txt.length > MAX_BODY) return err(413, "Données trop volumineuses");
       if (txt) { try { body = JSON.parse(txt); } catch { return err(400, "JSON invalide"); } }
@@ -219,6 +219,12 @@ export async function onRequest(context) {
         const users = await allUsers();
         const counts = Object.fromEntries(await Promise.all(users.map(async u => [u.id, (await readIndex(u.id)).length])));
         return json({ users: users.map(u => ({ ...publicUser(u), analyses: counts[u.id] })).sort((a, b) => (a.status === "pending" ? -1 : 0) - (b.status === "pending" ? -1 : 0) || a.name.localeCompare(b.name)) });
+      }
+      // sauvegarde complète (comptes + analyses)
+      if (path === "/admin/export" && method === "GET") {
+        const items = [];
+        for (const prefix of ["users/", "emails/", "analyses/", "index/"]) for (const key of await listKeys(prefix)) items.push({ key, value: await getJSON(key) });
+        return json({ exportedAt: new Date().toISOString(), count: items.length, items }, 200, { "content-disposition": "attachment; filename=avswim-export.json" });
       }
       // import des données exportées de Netlify (une seule fois, à la migration)
       if (path === "/admin/import" && method === "POST") {
