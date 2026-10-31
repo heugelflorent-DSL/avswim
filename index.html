@@ -793,8 +793,8 @@ function reportModel(list){const pool=list[0].meta.bassin,D=Math.max(...list.map
   sec("ARRIVÉE");row("5 m avant",X.map(x=>[S(x.dif(D,D-5)),""]),X.map(x=>x.dif(D,D-5)),"low");
   row("Approche mur",X.map(x=>{const t=x.tu.get(D);return[S(t?.approche),M(t?.dMur)]}),X.map(x=>x.tu.get(D)?.approche),"low");
   row("TOTAL non nagé",X.map(x=>[T(x.final!=null&&x.swT!=null?x.final-x.swT:null),""]),X.map(x=>x.final!=null&&x.swT!=null?x.final-x.swT:null),"low");
-  sec("COUPS DE BRAS");for(let d=0;d<D;d+=50){const ds=[...new Set(X.flatMap(x=>[...x.st.keys()]))].filter(k=>k>d&&k<=d+50);
-    row(`${d}-${d+50} m`,X.map(x=>{const v=ds.map(k=>x.st.get(k)).filter(v=>v!=null);return[v.length?String(v.reduce((a,b)=>a+b)):"-",""]}),X.map(()=>null))}
+  const cbStep=pool==25?25:50;sec("COUPS DE BRAS"+(pool==25?" (par 25 m)":" (par 50 m)"));for(let d=0;d<D;d+=cbStep){const ds=[...new Set(X.flatMap(x=>[...x.st.keys()]))].filter(k=>k>d&&k<=d+cbStep);
+    row(`${d}-${d+cbStep} m`,X.map(x=>{const v=ds.map(k=>x.st.get(k)).filter(v=>v!=null);return[v.length?String(v.reduce((a,b)=>a+b)):"-",""]}),X.map(()=>null))}
   row("TOTAL",X.map(x=>[x.cb?String(x.cb):"-",""]),X.map(()=>null));
   sec("FRÉQUENCE (c/min) | TEMPO (s)");for(let d=25;d<=D;d+=25)row(`${d-25}-${d} m`,X.map(x=>[fmt(x.fq.get(d),1),fmt(x.tp.get(d))]),X.map(x=>x.fq.get(d)),null);
   row("Moyenne",X.map(x=>[fmt(avg([...x.fq.values()]),1),fmt(avg([...x.tp.values()]))]),X.map(()=>null));
